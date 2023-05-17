@@ -41,5 +41,5 @@ Web Apps > Configuration > Application settings
 And click Save button.
 
 # Access and Enjoy your private ChatGPT!
-If you want set up authentication to client app, Please refer to following document.
+If you want to set up authentication to client app, Please refer to following document.
 https://learn.microsoft.com/en-us/azure/app-service/scenario-secure-app-authentication-app-service
