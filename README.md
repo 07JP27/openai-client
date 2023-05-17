@@ -28,7 +28,7 @@ python -m streamlit run app.py --server.port 8000 --server.address 0.0.0.0
 
 And click Save button.
 
-# 4. Ser Enviroment variables
+# 4. Set Enviroment variables
 Web Apps > Configuration > Application settings
 
 - OPENAI_API_ENDPOINT : Your Azure Open AI API endpoint URL
