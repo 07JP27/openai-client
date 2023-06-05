@@ -154,6 +154,7 @@ if user_input:
     st.session_state.past.append(user_input)
     # ChatGPTからの返答をgeneratedに追加する。
     st.session_state.generated.append(output['choices'][0]['message']['content'].strip())
+    st.session_state.input = ""
 
 # generatedが存在する場合、メッセージを表示する。
 if st.session_state['generated']:
