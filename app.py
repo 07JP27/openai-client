@@ -11,7 +11,7 @@ st.markdown("# Azure OpenAI ChatGPT サンプルアプリケーション")
 
 #サイドバーに説明を表示する。
 st.sidebar.header("ChatGPT Demo")
-st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーションのサンプル画面です。")
+st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーションのサンプル画面です。(Managed ID利用版)")
 
 st.sidebar.text("Endpoint："+os.getenv('OPENAI_API_ENDPOINT'))
 st.sidebar.text("API Ver："+os.getenv('OPENAI_API_VERSION'))
