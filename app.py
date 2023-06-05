@@ -22,7 +22,7 @@ default_credential = DefaultAzureCredential()
 token = default_credential.get_token("https://cognitiveservices.azure.com/.default")
 
 #Azure OpenAIへの接続情報を設定する。※適宜、御社の情報に編集ください
-openai.api_type = "azure"
+openai.api_type = "azure_ad"
 openai.api_base = os.getenv('OPENAI_API_ENDPOINT')
 openai.api_version = os.getenv('OPENAI_API_VERSION')#"2023-03-15-preview"
 openai.api_key = token.token
