@@ -1,6 +1,6 @@
 import os
 import streamlit as st
-import openai
+from openai import AzureOpenAI
 from azure.identity import DefaultAzureCredential
 
 #ページタイトルとアイコンを設定する。
@@ -13,22 +13,24 @@ st.markdown("# Azure OpenAI ChatGPT サンプルアプリケーション")
 st.sidebar.header("ChatGPT Demo")
 st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーションのサンプル画面です。(Managed ID利用版)")
 
-st.sidebar.text("Endpoint："+os.getenv('OPENAI_API_ENDPOINT'))
-st.sidebar.text("API Ver："+os.getenv('OPENAI_API_VERSION'))
-st.sidebar.text("Engine："+os.getenv('OPENAI_ENGINE'))
+#Azure OpenAIへの接続情報を設定する。※適宜編集してください
+deployment = os.getenv('OPENAI_DPLOYMENT')
+base = os.getenv('OPENAI_API_ENDPOINT')
+api_version = os.getenv('OPENAI_API_VERSION')#"2023-03-15-preview"
+
+st.sidebar.text("Endpoint："+base)
+st.sidebar.text("API Ver："+api_version)
+st.sidebar.text("Deployment："+deployment)
 
 #Managed IDでのトークン取得
 default_credential = DefaultAzureCredential()
 token = default_credential.get_token("https://cognitiveservices.azure.com/.default")
 
-#Azure OpenAIへの接続情報を設定する。※適宜、御社の情報に編集ください
-openai.api_type = "azure_ad"
-openai.api_base = os.getenv('OPENAI_API_ENDPOINT')
-openai.api_version = os.getenv('OPENAI_API_VERSION')#"2023-03-15-preview"
-openai.api_key = token.token
-
-openai_engine = os.getenv('OPENAI_ENGINE')
-
+client = AzureOpenAI(
+  azure_endpoint = base, 
+  azure_ad_token=token.token,
+  api_version=api_version
+)
 
 # チャットの吹き出しスタイル、マークダウンのCSS
 CSS = """
@@ -138,22 +140,22 @@ st.session_state.conversation.append({"role": "user", "content": user_input})
 
 # ユーザの入力があった場合、ChatGPT APIを呼び出す。
 if user_input:
-    output = openai.ChatCompletion.create(
-          engine=openai_engine,
-          messages=st.session_state.conversation,
-          temperature=Temperature_temp,
-          max_tokens=MaxTokens_temp,
-          top_p=top_p_temp,
-          frequency_penalty=0,
-          presence_penalty=0,
-          )
+    output = client.chat.completions.create(
+      model=deployment,
+      messages=st.session_state.conversation,
+      temperature=Temperature_temp,
+      max_tokens=MaxTokens_temp,
+      top_p=top_p_temp,
+      frequency_penalty=0,
+      presence_penalty=0,
+    )
  
     # ChatGPTからの返答をconversationに追加する。
-    st.session_state.conversation.append({"role": "assistant", "content": output['choices'][0]['message']['content']})
+    st.session_state.conversation.append({"role": "assistant", "content": output.choices[0].message.content})
     # ユーザからの入力をpastに追加する。
     st.session_state.past.append(user_input)
     # ChatGPTからの返答をgeneratedに追加する。
-    st.session_state.generated.append(output['choices'][0]['message']['content'].strip())
+    st.session_state.generated.append(output.choices[0].message.content)
 
 # generatedが存在する場合、メッセージを表示する。
 if st.session_state['generated']:
