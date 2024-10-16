@@ -57,7 +57,8 @@ Web Apps > Configuration > Application settings
 - AOAI_API_VERSION : API Vearsion (2023-03-15-preview)
 - AOAI_DPLOYMENT : The deploy name of model you deployed
 
-![2023-06-05_11h26_35](https://github.com/07JP27/openai-client/assets/11060273/4c4bd961-3282-41d7-87e7-d96e83fd3dea)
+![image](https://github.com/user-attachments/assets/97d84ab6-db5f-4d2d-85fc-f9d790bab11b)
+
 
 And click Save button.
 
