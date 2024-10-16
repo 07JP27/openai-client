@@ -1,7 +1,7 @@
 import os
 import streamlit as st
 from openai import AzureOpenAI
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential,get_bearer_token_provider
 
 #ページタイトルとアイコンを設定する。
 st.set_page_config(page_title="Custom ChatGPT", page_icon="💬",layout="wide")
@@ -11,24 +11,26 @@ st.markdown("# Azure OpenAI ChatGPT サンプルアプリケーション")
 
 #サイドバーに説明を表示する。
 st.sidebar.header("ChatGPT Demo")
-st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーションのサンプル画面です。(Managed ID利用版)")
+st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーションのサンプル画面です。")
 
 #Azure OpenAIへの接続情報を設定する。※適宜編集してください
 deployment = os.getenv('OPENAI_DPLOYMENT')
 base = os.getenv('OPENAI_API_ENDPOINT')
-api_version = os.getenv('OPENAI_API_VERSION')#"2023-03-15-preview"
+api_version = os.getenv('OPENAI_API_VERSION')#"2024-06-01"
 
 st.sidebar.text("Endpoint："+base)
 st.sidebar.text("API Ver："+api_version)
 st.sidebar.text("Deployment："+deployment)
 
 #Managed IDでのトークン取得
-default_credential = DefaultAzureCredential()
-token = default_credential.get_token("https://cognitiveservices.azure.com/.default")
+token_provider = get_bearer_token_provider(  
+    DefaultAzureCredential(),  
+    "https://cognitiveservices.azure.com/.default"  
+)  
 
 client = AzureOpenAI(
   azure_endpoint = base, 
-  azure_ad_token=token.token,
+  azure_ad_token_provider=token_provider,
   api_version=api_version
 )
 
@@ -97,20 +99,20 @@ st.markdown(CSS, unsafe_allow_html=True)
 
 # 3つのセッションステートを作成する。
 if 'generated' not in st.session_state:
-    st.session_state['generated'] = []
+  st.session_state['generated'] = []
 
 if 'past' not in st.session_state:
-    st.session_state['past'] = []
+  st.session_state['past'] = []
 
 if 'conversation' not in st.session_state:
-    st.session_state['conversation'] = []
+  st.session_state['conversation'] = []
 
 # クリアボタンを押した場合、チャットをクリアする。
 if st.sidebar.button("Clear Chat"):
-    st.session_state['generated'] = []
-    st.session_state['past'] = []
-    st.session_state['conversation'] = []
-    st.session_state["input"] = ""  
+  st.session_state['generated'] = []
+  st.session_state['past'] = []
+  st.session_state['conversation'] = []
+  st.session_state["input"] = ""  
 
 # サイドバーでパラメータを設定する
 st.sidebar.markdown("ChatGPTのパラメータ設定")
@@ -123,14 +125,14 @@ SystemRole = st.sidebar.text_area("System Role(システムの役割)", "あな�
 
 # Systemの役割をsession_stateに追加する
 if SystemRole:
-    st.session_state.conversation.append({"role": "system", "content": SystemRole})
+  st.session_state.conversation.append({"role": "system", "content": SystemRole})
 
 # ユーザの入力ボックス
 user_input = st.text_area("You: ","", key="input")
 
 # 入力ボックスのクリア
 def clear_text():
-    st.session_state.input = ""
+  st.session_state.input = ""
 
 st.button("Clear text input", on_click=clear_text)
 st.write("")
@@ -140,26 +142,26 @@ st.session_state.conversation.append({"role": "user", "content": user_input})
 
 # ユーザの入力があった場合、ChatGPT APIを呼び出す。
 if user_input:
-    output = client.chat.completions.create(
-      model=deployment,
-      messages=st.session_state.conversation,
-      temperature=Temperature_temp,
-      max_tokens=MaxTokens_temp,
-      top_p=top_p_temp,
-      frequency_penalty=0,
-      presence_penalty=0,
-    )
- 
-    # ChatGPTからの返答をconversationに追加する。
-    st.session_state.conversation.append({"role": "assistant", "content": output.choices[0].message.content})
-    # ユーザからの入力をpastに追加する。
-    st.session_state.past.append(user_input)
-    # ChatGPTからの返答をgeneratedに追加する。
-    st.session_state.generated.append(output.choices[0].message.content)
+  output = client.chat.completions.create(
+    model=deployment,
+    messages=st.session_state.conversation,
+    temperature=Temperature_temp,
+    max_tokens=MaxTokens_temp,
+    top_p=top_p_temp,
+    frequency_penalty=0,
+    presence_penalty=0,
+  )
+
+  # ChatGPTからの返答をconversationに追加する。
+  st.session_state.conversation.append({"role": "assistant", "content":output.choices[0].message.content})
+  # ユーザからの入力をpastに追加する。
+  st.session_state.past.append(user_input)
+  # ChatGPTからの返答をgeneratedに追加する。
+  st.session_state.generated.append(output.choices[0].message.content)
 
 # generatedが存在する場合、メッセージを表示する。
 if st.session_state['generated']:
-    for i in range(len(st.session_state['generated'])-1, -1, -1):
-        if st.session_state['past'][i]:
-            st.markdown(f'<div class="chat-bubble assistant">{st.session_state["generated"][i]} </div>', unsafe_allow_html=True)
-            st.markdown(f'<div class="chat-bubble user">{st.session_state["past"][i]} </div>', unsafe_allow_html=True)
+  for i in range(len(st.session_state['generated'])-1, -1, -1):
+    if st.session_state['past'][i]:
+      st.markdown(f'<div class="chat-bubble assistant">{st.session_state["generated"][i]} </div>', unsafe_allow_html=True)
+      st.markdown(f'<div class="chat-bubble user">{st.session_state["past"][i]} </div>', unsafe_allow_html=True)
