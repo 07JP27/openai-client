@@ -1,7 +1,8 @@
 import os
 import streamlit as st
 from openai import AzureOpenAI
-from azure.identity import DefaultAzureCredential,get_bearer_token_provider
+from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+import requests
 
 #ページタイトルとアイコンを設定する。
 st.set_page_config(page_title="Custom ChatGPT", page_icon="💬",layout="wide")
@@ -12,6 +13,23 @@ st.markdown("# Azure OpenAI ChatGPT サンプルアプリケーション")
 #サイドバーに説明を表示する。
 st.sidebar.header("ChatGPT Demo")
 st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーションのサンプル画面です。")
+
+# Get user claimsボタンをクリックしたらユーザー情報を取得して表示する関数
+def get_user_claims():
+    response = requests.get('/api/user')
+    if response.status_code == 200:
+        user_info = response.json()
+        st.session_state['user_info'] = user_info
+    else:
+        st.session_state['user_info'] = "ユーザー情報の取得に失敗しました。"
+
+# サイドバーにGet user claimsボタンを追加し、クリック時にget_user_claims関数を呼び出す
+if st.sidebar.button("Get user claims"):
+    get_user_claims()
+
+# ユーザー情報を表示する
+if 'user_info' in st.session_state:
+    st.sidebar.text("User Info: " + str(st.session_state['user_info']))
 
 #Azure OpenAIへの接続情報を設定する。※適宜編集してください
 deployment = os.getenv('AOAI_DPLOYMENT')
@@ -115,7 +133,7 @@ if st.sidebar.button("Clear Chat"):
   st.session_state["input"] = ""  
 
 # サイドバーでパラメータを設定する
-st.sidebar.markdown("ChatGPTのパラメータ設定")
+st.sidebar.markdown("ChatGPTのパ���メータ設定")
 Temperature_temp = st.sidebar.slider("Temperature(温度)", 0.0, 1.0, 0.7, 0.01)
 MaxTokens_temp = st.sidebar.slider("Max_Tokens(最大応答トークン数)", 0, 2048, 500, 1)
 top_p_temp = st.sidebar.slider("Top_p(上位P)", 0.0, 1.0, 0.9, 0.01)
