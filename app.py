@@ -16,7 +16,7 @@ st.sidebar.markdown("Azure OpenAIのChatGPT APIを使ったWebアプリケーシ
 
 # Get user claimsボタンをクリックしたらユーザー情報を取得して表示する関数
 def get_user_claims():
-    response = requests.get('/api/user')
+    response = requests.get('/.auth/me')
     if response.status_code == 200:
         user_info = response.json()
         st.session_state['user_info'] = user_info
